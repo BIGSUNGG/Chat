@@ -20,16 +20,26 @@ public class CookieManager
         SaveCookies(cookies.ToList(), type);
     }
 
+    public string GetFilePath(CookieType type)
+    {
+        return _cookiesFilePath + type + "_cookies.json";
+    }
+
     public void SaveCookies(List<Cookie> cookies, CookieType type)
     {
+        string filePath = GetFilePath(type);
         string json = JsonConvert.SerializeObject(cookies, Formatting.Indented);
-        File.WriteAllText(_cookiesFilePath + type + "_cookies.txt", json);
+        File.WriteAllText(filePath, json);
         //Console.WriteLine(json);
     }
 
     public List<Cookie> LoadCookies(CookieType type)
     {
-        string json = File.ReadAllText(_cookiesFilePath + type + "_cookies.txt", Encoding.UTF8);
+        string filePath = GetFilePath(type);
+        if (File.Exists(filePath) == false)
+            return null;
+
+        string json = File.ReadAllText(filePath, Encoding.UTF8);
         List<Cookie> cookies = JsonConvert.DeserializeObject<List<Cookie>>(json);
         //Console.WriteLine(json);
         return cookies;

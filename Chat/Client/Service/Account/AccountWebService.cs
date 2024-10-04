@@ -8,40 +8,30 @@ using WebSocketSharp.Net;
 
 public class AccountWebService : ClientWebService
 {
-    string _name = "BIGSUNGG";
+    AccountCookieHandler account = new AccountCookieHandler();
 
     public AccountWebService() : base("ws://localhost:5000/" + ServiceType.account)
     {
     }
 
-    public override void SaveCookie()
+    public override void SaveAllCookie()
     {
-        base.SaveCookie();
+        base.SaveAllCookie();
 
-        List<Cookie> cookies = new List<Cookie>();
-
-        // Name
-        {
-            Cookie cookie = new Cookie()
-            {
-                Name = "Name",
-                Value = _name,
-            };
-
-            cookies.Add(cookie);
-        }
-
-        CookieManager.Instance.SaveCookies(cookies, CookieType.account);
+        account.SaveCookie();
     }
 
-    public override void LoadCookie()
+    public override void LoadAllCookie()
     {
-        base.LoadCookie();
+        base.LoadAllCookie();
 
-        var cookies = CookieManager.Instance.LoadCookies(CookieType.account);
-        foreach (var cookie in cookies)
+        var cookies = account.LoadCookie();
+        if (cookies != null)
         {
-            ws.SetCookie(cookie);
+            foreach (var cookie in cookies)
+            {
+                ws.SetCookie(cookie);
+            }
         }
     }
 
@@ -50,8 +40,8 @@ public class AccountWebService : ClientWebService
     {
         base.OnMessage(e);
 
-        _name = e.Data;
-        SaveCookie();
+        account.Name = e.Data;
+        SaveAllCookie();
     }
 
     protected override void OnClose(CloseEventArgs e)

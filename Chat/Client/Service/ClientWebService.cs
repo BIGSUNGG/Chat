@@ -20,7 +20,7 @@ public class ClientWebService
 
     public void Connect()
     {
-        LoadCookie();
+        LoadAllCookie();
 
         ws.Connect();
     }
@@ -40,11 +40,11 @@ public class ClientWebService
         ws.Close();
     }
 
-    public virtual void SaveCookie()
+    public virtual void SaveAllCookie()
     {
     }
 
-    public virtual void LoadCookie()
+    public virtual void LoadAllCookie()
     {
     }
 
@@ -66,7 +66,7 @@ public class ClientWebService
 
     protected virtual void OnClose(CloseEventArgs e)
     {
-        SaveCookie();
+        SaveAllCookie();
         Console.WriteLine("Disconnected from the server.");
     }
     #endregion
