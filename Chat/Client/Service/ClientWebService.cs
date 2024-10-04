@@ -1,12 +1,13 @@
 ﻿using System;
 using WebSocketSharp;
+using WebSocketSharp.Net;
 
-public class WebSocketClient
+public class ClientWebService
 {
-    private WebSocket ws;
+    protected WebSocket ws;
     private string clientId;
 
-    public WebSocketClient(string url)
+    protected ClientWebService(string url)
     {
         ws = new WebSocket(url);
 
@@ -19,6 +20,8 @@ public class WebSocketClient
 
     public void Connect()
     {
+        LoadCookie();
+
         ws.Connect();
     }
 
@@ -37,31 +40,33 @@ public class WebSocketClient
         ws.Close();
     }
 
+    public virtual void SaveCookie()
+    {
+    }
+
+    public virtual void LoadCookie()
+    {
+    }
+
     #region Event
-    private void OnOpen()
+    protected virtual void OnOpen()
     {
         Console.WriteLine($"Connected to the server.");
     }
 
-    private void OnMessage(MessageEventArgs e)
+    protected virtual void OnMessage(MessageEventArgs e)
     {
-        Console.WriteLine($"Received from server: {e.Data}");
-
-        // 서버로부터 자신의 ID를 전달받았는지 확인
-        if (e.Data.StartsWith("Your ID is "))
-        {
-            clientId = e.Data.Substring("Your ID is ".Length);
-            Console.WriteLine($"My client ID is: {clientId}");
-        }
+        Console.WriteLine($"Received from server : {e.Data}");
     }
 
-    private void OnError(ErrorEventArgs e)
+    protected virtual void OnError(ErrorEventArgs e)
     {
-        Console.WriteLine($"Error: {e.Message}");
+        Console.WriteLine($"Error : {e.Message}");
     }
 
-    private void OnClose(CloseEventArgs e)
+    protected virtual void OnClose(CloseEventArgs e)
     {
+        SaveCookie();
         Console.WriteLine("Disconnected from the server.");
     }
     #endregion

@@ -16,7 +16,8 @@ namespace Server
             var wssv = new WebSocketServer("ws://localhost:5000");
 
             // 서비스 추가
-            wssv.AddWebSocketService<ServiceWebSocket>("/chat");
+            wssv.AddWebSocketService<ChatWebService>("/" + ServiceType.chat);
+            wssv.AddWebSocketService<AccountWebService>("/" + ServiceType.account);
 
             // 서버 시작
             wssv.Start();

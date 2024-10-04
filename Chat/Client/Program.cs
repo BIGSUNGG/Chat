@@ -8,29 +8,55 @@ namespace Client
 {
     public class Program
     {
+        public static void PrintManual()
+        {
+            Console.WriteLine("Type 'account' to open AccountWebService.");
+            Console.WriteLine("Type 'chat' to open ChatWebService.");
+            Console.WriteLine("Type 'exit' to close the connection.");
+        }
+
         public static void Main(string[] args)
         {
             Console.WriteLine("Client Start");
+            ClientWebService chat = null;
 
-            string url = "ws://localhost:5000/chat"; 
-            var client = new WebSocketClient(url);
+            PrintManual();
 
-            client.Connect();
-
-            Console.WriteLine("Type a message and press Enter to send it to the server.");
-            Console.WriteLine("Type 'exit' to close the connection.");
-
-            string message;
-            while ((message = Console.ReadLine()) != null)
             {
-                if (message.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                string message;
+                while ((message = Console.ReadLine()) != null)
                 {
-                    client.Close();
-                    break;
-                }
-                else
-                {
-                    client.Send(message);
+                    if (message.Equals("chat", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (chat != null)
+                            chat.Close();
+
+                        PrintManual();
+
+                        chat = new ChatWebService();
+                        chat.Connect();
+                    }
+                    else if (message.Equals("account", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (chat != null)
+                            chat.Close();
+
+                        PrintManual();
+
+                        chat = new AccountWebService();
+                        chat.Connect();
+                    }
+                    else if (message.Equals("exit", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (chat != null) 
+                            chat.Close();
+
+                        break;
+                    }
+                    else
+                    {
+                        chat.Send(message);
+                    }
                 }
             }
         }

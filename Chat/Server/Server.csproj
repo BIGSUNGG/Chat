@@ -37,9 +37,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Massage\Message.cs" />
     <Compile Include="Program.cs" />
-    <Compile Include="Service\ServiceWebSocket.cs" />
+    <Compile Include="Service\Account\AccountWebService.cs" />
+    <Compile Include="Service\Chat\ChatWebService.cs" />
+    <Compile Include="Service\ServerWebService.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
