@@ -4,41 +4,65 @@ using System.Linq;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using WebSocketSharp;
 using WebSocketSharp.Net;
 
-public class AccountCookieHandler : CookieHandler
+public class AccountCookieHandler : ClientCookieHandler
 {
-    public string Name = string.Empty;
+    public Cookie Id = null;
+    public Cookie Password = null;
+
+    public AccountCookieHandler(WebSocket ws) : base(ws)
+    {
+    }
 
     public override void SaveCookie()
     {
+        base.SaveCookie();
+
         List<Cookie> cookies = new List<Cookie>();
-
-        // Name
-        {
-            Cookie cookie = new Cookie()
-            {
-                Name = "Name",
-                Value = Name,
-            };
-
-            cookies.Add(cookie);
-        }
+        cookies.Add(Id);
+        cookies.Add(Password);
 
         CookieManager.Instance.SaveCookies(cookies, CookieType.account);
     }
 
-    public override List<Cookie> LoadCookie()
+    public override void LoadCookie()
     {
+        base.LoadCookie();
+
         List<Cookie> cookies = CookieManager.Instance.LoadCookies(CookieType.account);
 
-        // Name
+        foreach(var cookie in cookies)
         {
-            Cookie name = cookies.Where(c => c.Name == "Name").FirstOrDefault();
-            if (name != null)
-                this.Name = name.Value;
+            if (cookie == null)
+                continue;
+
+            switch(cookie.Name)
+            {
+                case "Id":
+                    Id = cookie;
+                    break;
+                case "Password":
+                    Password = cookie;
+                    break;
+                default:
+                    Console.WriteLine("unknown cookie");
+                    break;
+            }
         }
 
-        return cookies;
+        foreach (var cookie in cookies)
+        {
+            if (cookie == null)
+                continue;
+            _ws.SetCookie(cookie);
+        }        
+    }
+
+    public override void ResetCookie()
+    {
+        Id = new Cookie();
+        Password = new Cookie();
     }
 }

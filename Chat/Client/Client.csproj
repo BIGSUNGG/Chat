@@ -38,7 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cookie\Handler\Account\AccountCookieHandler.cs" />
-    <Compile Include="Cookie\Handler\CookieHandler.cs" />
+    <Compile Include="Cookie\Handler\ClientCookieHandler.cs" />
     <Compile Include="Cookie\Manager\CookieManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Service\Account\AccountWebService.cs" />

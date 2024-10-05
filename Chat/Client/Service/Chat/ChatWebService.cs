@@ -8,33 +8,24 @@ using WebSocketSharp.Net;
 
 public class ChatWebService : ClientWebService
 {
-    AccountCookieHandler account = new AccountCookieHandler();
+    AccountCookieHandler _account = null;
 
     public ChatWebService() : base("ws://localhost:5000/" + ServiceType.chat)
     {
-
+        _account = new AccountCookieHandler(_ws);
     }
 
-    public override void SaveAllCookie()
+    #region Cookie
+    public override void SaveCookie()
     {
-        base.SaveAllCookie();
-
-        account.SaveCookie();
+        _account.SaveCookie();
     }
 
-    public override void LoadAllCookie()
+    public override void LoadCookie()
     {
-        base.LoadAllCookie();
-
-        var cookies = account.LoadCookie();
-        if (cookies != null)
-        {
-            foreach (var cookie in cookies)
-            {
-                ws.SetCookie(cookie);
-            }
-        }
+        _account.LoadCookie();
     }
+    #endregion
 
     #region Event
     #endregion

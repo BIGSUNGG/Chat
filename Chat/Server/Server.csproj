@@ -37,6 +37,7 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DB\ChatDbContext.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Service\Account\AccountWebService.cs" />
     <Compile Include="Service\Chat\ChatWebService.cs" />

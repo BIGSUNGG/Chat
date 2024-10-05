@@ -55,7 +55,8 @@ namespace Client
                     }
                     else
                     {
-                        chat.Send(message);
+                        if(chat != null)
+                            chat.Send(message);
                     }
                 }
             }

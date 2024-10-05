@@ -2,51 +2,45 @@
 using WebSocketSharp;
 using WebSocketSharp.Net;
 
-public class ClientWebService
+public abstract class ClientWebService
 {
-    protected WebSocket ws;
+    protected WebSocket _ws;
     private string clientId;
 
     protected ClientWebService(string url)
     {
-        ws = new WebSocket(url);
+        _ws = new WebSocket(url);
 
         // sender = this
-        ws.OnOpen += (sender, e) => OnOpen();
-        ws.OnMessage += (sender, e) => OnMessage(e);
-        ws.OnClose += (sender, e) => OnClose(e);
-        ws.OnError += (sender, e) => OnError(e);
+        _ws.OnOpen += (sender, e) => OnOpen();
+        _ws.OnMessage += (sender, e) => OnMessage(e);
+        _ws.OnClose += (sender, e) => OnClose(e);
+        _ws.OnError += (sender, e) => OnError(e);
     }
 
-    public void Connect()
+    #region Action
+    public virtual void Connect()
     {
-        LoadAllCookie();
+        LoadCookie();
 
-        ws.Connect();
+        _ws.Connect();
     }
 
-    public void Send(string data)
+    public virtual void Send(string data)
     {
-        ws.Send(data);
+        _ws.Send(data);
     }
 
-    public void Send(byte[] data)
+    public virtual void Close()
     {
-        ws.Send(data);
+        _ws.Close();
     }
+    #endregion
 
-    public void Close()
-    {
-        ws.Close();
-    }
-
-    public virtual void SaveAllCookie()
-    {
-    }
-
-    public virtual void LoadAllCookie()
-    {
-    }
+    #region Cookie
+    public abstract void SaveCookie();
+    public abstract void LoadCookie();
+    #endregion
 
     #region Event
     protected virtual void OnOpen()
@@ -66,7 +60,7 @@ public class ClientWebService
 
     protected virtual void OnClose(CloseEventArgs e)
     {
-        SaveAllCookie();
+        SaveCookie();
         Console.WriteLine("Disconnected from the server.");
     }
     #endregion

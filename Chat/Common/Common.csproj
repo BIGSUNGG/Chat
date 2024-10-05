@@ -41,7 +41,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Cookie\Cookie.cs" />
-    <Compile Include="Massage\Message.cs" />
+    <Compile Include="Massage\MessageReader.cs" />
+    <Compile Include="Massage\MessageWriter.cs" />
+    <Compile Include="Massage\MessageEnum.cs" />
     <Compile Include="Service\Service.cs" />
   </ItemGroup>
   <ItemGroup>

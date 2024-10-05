@@ -7,7 +7,8 @@ using WebSocketSharp;
 
 public class ChatWebService : ServerWebService
 {
-    string _name = string.Empty;
+    string Id = string.Empty;
+    string Password = string.Empty;
 
     #region Event
     protected override void OnOpen()
@@ -16,30 +17,31 @@ public class ChatWebService : ServerWebService
 
         Console.WriteLine($"Client connected: {ID}");
 
-        _name = Context.CookieCollection["name"].Value;
-        Sessions.Broadcast($"[{_name}] connected");
+        Id = Context.CookieCollection["Id"].Value;
+        Password = Context.CookieCollection["Password"].Value;
+        Sessions.Broadcast($"[{Id}] connected");
     }
 
     protected override void OnMessage(MessageEventArgs e)
     {
         base.OnMessage(e);        
 
-        BroadcastExcept($"[{_name}] : {e.Data}", ID);
-        Console.WriteLine($"Received from client [{_name}] : {e.Data}");
+        BroadcastExcept($"[{Id}] : {e.Data}", ID);
+        Console.WriteLine($"Received from client [{Id}] : {e.Data}");
     }
 
     protected override void OnError(ErrorEventArgs e)
     {
         base.OnError(e);
 
-        Console.WriteLine($"Error from client [{_name}] : {e.Message}");
+        Console.WriteLine($"Error from client [{Id}] : {e.Message}");
     }
 
     protected override void OnClose(CloseEventArgs e)
     {
         base.OnClose(e);
 
-        Sessions.Broadcast($"[{_name}] disconnected");
+        Sessions.Broadcast($"[{Id}] disconnected");
     }
     #endregion
 }
