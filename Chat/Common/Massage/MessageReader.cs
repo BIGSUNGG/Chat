@@ -18,4 +18,16 @@ public class MessageReader
         for (int i = 1; i < messageArr.Length; i++)
             Messages.Add(messageArr[i]);
     }
+
+    public string ToMessage()
+    {
+        string result = "";
+        result += MessageType;
+        foreach(string message in Messages)
+        {
+            result += ("," + message);
+        }
+
+        return result;
+    }
 }

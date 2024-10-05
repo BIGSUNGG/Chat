@@ -8,57 +8,28 @@ namespace Client
 {
     public class Program
     {
-        public static void PrintManual()
+        static ClientWebService _curService = null;
+
+        public static void ChangeService(ServiceType type)
         {
-            Console.WriteLine("Type 'account' to open AccountWebService.");
-            Console.WriteLine("Type 'chat' to open ChatWebService.");
-            Console.WriteLine("Type 'exit' to close the connection.");
+            if (_curService != null)
+                _curService.Close();
+
+            ClientWebService service = ClientWebService.Create(type);
+            _curService = service;
+            _curService.Connect();
         }
 
         public static void Main(string[] args)
         {
             Console.WriteLine("Client Start");
-            ClientWebService chat = null;
+            ChangeService(ServiceType.account);
 
-            PrintManual();
-
+            string message;
+            while ((message = Console.ReadLine()) != null)
             {
-                string message;
-                while ((message = Console.ReadLine()) != null)
-                {
-                    if (message.Equals("chat", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (chat != null)
-                            chat.Close();
-
-                        PrintManual();
-
-                        chat = new ChatWebService();
-                        chat.Connect();
-                    }
-                    else if (message.Equals("account", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (chat != null)
-                            chat.Close();
-
-                        PrintManual();
-
-                        chat = new AccountWebService();
-                        chat.Connect();
-                    }
-                    else if (message.Equals("exit", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (chat != null) 
-                            chat.Close();
-
-                        break;
-                    }
-                    else
-                    {
-                        if(chat != null)
-                            chat.Send(message);
-                    }
-                }
+                if (_curService != null)
+                    _curService.Input(message);
             }
         }
     }

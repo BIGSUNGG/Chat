@@ -15,6 +15,13 @@ public class ChatWebService : ClientWebService
         _account = new AccountCookieHandler(_ws);
     }
 
+    #region Action
+    public override void Input(string data)
+    {
+        Send(data);
+    }
+    #endregion
+
     #region Cookie
     public override void SaveCookie()
     {

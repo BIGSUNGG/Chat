@@ -9,6 +9,7 @@ using WebSocketSharp.Net;
 
 public class AccountCookieHandler : ClientCookieHandler
 {
+    public Cookie AutoLogin = null;
     public Cookie Id = null;
     public Cookie Password = null;
 
@@ -21,6 +22,7 @@ public class AccountCookieHandler : ClientCookieHandler
         base.SaveCookie();
 
         List<Cookie> cookies = new List<Cookie>();
+        cookies.Add(AutoLogin);
         cookies.Add(Id);
         cookies.Add(Password);
 
@@ -33,36 +35,57 @@ public class AccountCookieHandler : ClientCookieHandler
 
         List<Cookie> cookies = CookieManager.Instance.LoadCookies(CookieType.account);
 
-        foreach(var cookie in cookies)
-        {
-            if (cookie == null)
-                continue;
-
-            switch(cookie.Name)
+        if (cookies!=null)
+        { 
+            foreach (var cookie in cookies)
             {
-                case "Id":
-                    Id = cookie;
-                    break;
-                case "Password":
-                    Password = cookie;
-                    break;
-                default:
-                    Console.WriteLine("unknown cookie");
-                    break;
+                if (cookie == null)
+                    continue;
+
+                switch (cookie.Name)
+                {
+                    case "AutoLogin":
+                        AutoLogin = cookie;
+                        break;
+                    case "Id":
+                        Id = cookie;
+                        break;
+                    case "Password":
+                        Password = cookie;
+                        break;
+                    default:
+                        Console.WriteLine("unknown cookie");
+                        break;
+                }
+            }
+
+            foreach (var cookie in cookies)
+            {
+                if (cookie == null)
+                    continue;
+                _ws.SetCookie(cookie);
             }
         }
-
-        foreach (var cookie in cookies)
-        {
-            if (cookie == null)
-                continue;
-            _ws.SetCookie(cookie);
-        }        
     }
 
     public override void ResetCookie()
     {
-        Id = new Cookie();
-        Password = new Cookie();
+        AutoLogin = new Cookie()
+        {
+            Name = "AutoLogin",
+            Value = "false"
+        };
+
+        Id = new Cookie()
+        {
+            Name = "Id",
+            Value = string.Empty
+        };
+
+        Password = new Cookie()
+        {
+            Name = "Password",
+            Value = string.Empty
+        };
     }
 }

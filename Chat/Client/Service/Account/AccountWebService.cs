@@ -6,11 +6,13 @@ using System.Text;
 using System.Threading.Tasks;
 using WebSocketSharp;
 using WebSocketSharp.Net;
+using Client;
 
 public class AccountWebService : ClientWebService
 {
     AccountCookieHandler _account = null;
-    MessageWriter _accountMessage = new MessageWriter();
+    MessageWriter _accountWriter = new MessageWriter();
+    int _messageCount = int.MaxValue;
 
     public AccountWebService() : base("ws://localhost:5000/" + ServiceType.account)
     {
@@ -18,34 +20,69 @@ public class AccountWebService : ClientWebService
     }
 
     #region Action
-    public override void Send(string data)
+    public override void Input(string data)
     {
-        if(_accountMessage.MessageType == string.Empty)
+        if(_accountWriter.MessageType == string.Empty)
         {
-            // 메시지 타입이 적절하지 않은 경우
-            if (Enum.TryParse(data, out AccountMessageType type) == false)
+            if(Enum.TryParse(data, out AccountMessageType type))
             {
-                Console.WriteLine("Wrong Type");
-                return;
-            }
+                switch(type)
+                {
+                    case AccountMessageType.Create:
+                        _messageCount = 3;
 
-            _accountMessage.WriteMessage(data);
+                        Console.WriteLine("     Input Create Account Info     ");
+                        Console.WriteLine("+-------------+ +----+ +----------+");
+                        Console.WriteLine("| User Name   | | Id | | Password |");
+                        Console.WriteLine("+-------------+ +----+ +----------+");
+                        break;
+                    case AccountMessageType.Login:
+                        _messageCount = 2;
+
+                        Console.WriteLine("     Input Login Account Info     ");
+                        Console.WriteLine("       +----+ +----------+");
+                        Console.WriteLine("       | Id | | Password |");
+                        Console.WriteLine("       +----+ +----------+");
+
+                        // 자동 로그인
+                        if (_account.AutoLogin.Value != "true")
+                            break;
+
+                        _accountWriter.WriteMessage(_account.Id.Value);
+                        _accountWriter.WriteMessage(_account.Password.Value);
+                        Console.WriteLine(_account.Id.Value);
+                        Console.WriteLine(_account.Password.Value);
+
+                        break;
+                    case AccountMessageType.Logout:
+                        _messageCount = int.MaxValue;
+
+                        // 자동 로그인 취소
+                        _account.AutoLogin.Value = "false";
+                        _account.SaveCookie();
+                        return;
+                    default:
+                        Console.WriteLine("Need to implementation");
+                        break;
+                }
+
+                _accountWriter.WriteMessageType(data);
+            }
+            else
+            {
+                Console.WriteLine("Choose wrong action");
+            }
         }
         else
         {
-            _accountMessage.WriteMessage(data);
+            _accountWriter.WriteMessage(data);
         }
 
-        // 전송할 메시지가 모두 모인 경우
-        if(_accountMessage.Messages.Count == 3)
+        if (_accountWriter.Messages.Count >= _messageCount)
         {
-            // 1. Type
-            // 2. Name
-            // 3. ID
-            // 4. Password
-            _ws.Send(_accountMessage.ToString());
-            _account.Id.Value = _accountMessage.Messages[1];
-            _account.Password.Value = _accountMessage.Messages[2];
+            Send(_accountWriter.ToMessage());
+            _accountWriter.Clear();
+            _messageCount = int.MaxValue;
         }
     }
     #endregion
@@ -63,16 +100,46 @@ public class AccountWebService : ClientWebService
     #endregion
 
     #region Event
+    protected override void OnOpen()
+    {
+        base.OnOpen();
+
+        Console.WriteLine("           Choose Action           ");
+        Console.WriteLine("+---------+ +---------+ +---------+");
+        Console.WriteLine("| Create  | |  Login  | |  Logout |");
+        Console.WriteLine("+---------+ +---------+ +---------+");
+    }
+
     protected override void OnMessage(MessageEventArgs e)
     {
         base.OnMessage(e);
 
-        SaveCookie();
-    }
+        MessageReader reader = new MessageReader(e.Data);
+        if (Enum.TryParse(reader.MessageType, out AccountMessageType type))
+        {
+            switch (type)
+            {
+                case AccountMessageType.Create:
+                    _account.AutoLogin.Value = "true";
+                    _account.Id.Value = reader.Messages[1];
+                    _account.Password.Value = reader.Messages[2];
+                    break;
+                case AccountMessageType.Login:
+                    _account.AutoLogin.Value = "true";
+                    _account.Id.Value = reader.Messages[0];
+                    _account.Password.Value = reader.Messages[1];
+                    break;
+                case AccountMessageType.Logout:
+                    _account.AutoLogin.Value = "false";
+                    break;
+                default:
+                    Console.WriteLine("Need to implementation");
+                    break;
+            }
+        }
 
-    protected override void OnClose(CloseEventArgs e)
-    {
-        base.OnClose(e);
+        SaveCookie();
+        Program.ChangeService(ServiceType.chat);
     }
     #endregion
 }

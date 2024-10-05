@@ -15,7 +15,7 @@ public class ChatWebService : ServerWebService
     }
 
     #region Cookie
-    public override void LoadAllCookie()
+    public override void LoadCookie()
     {
         if(_account == null)
             _account = new AccountCookieHandler(Context);
@@ -34,8 +34,13 @@ public class ChatWebService : ServerWebService
         using (ChatDbContext db = new ChatDbContext())
         {
             AccountDb account = db.Accounts.Where(a => a.Id == _account.Id.Value && a.Password == _account.Password.Value).FirstOrDefault();
+
+            // 존재하지 않는 계정 정보를 받으면 연결 끊기
             if (account == null)
+            {
+                Context.WebSocket.Close(CloseStatusCode.InvalidData);
                 return;
+            }
 
             _name = account.Name;
         }

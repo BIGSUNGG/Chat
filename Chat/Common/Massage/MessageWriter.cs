@@ -29,25 +29,10 @@ public class MessageWriter
 
     public void WriteMessage(string message)
     {
-        string[] messageArr = message.Split(',');
-        if (messageArr.Length == 0)
-            return;
-
-        int offset = 0;
-
-        if (_messageType == string.Empty)
-        {
-            WriteMessageType(messageArr[0]);
-            offset++;
-        }
-
-        for(int i = offset; i < messageArr.Length; i++)
-        {
-            _messages.Add(messageArr[i]);
-        }
+        _messages.Add(message);
     }
 
-    public override string ToString()
+    public string ToMessage()
     {
         string result = "";
         result += _messageType;
@@ -56,5 +41,11 @@ public class MessageWriter
             result += ("," + message);
         }
         return result;
+    }
+
+    public void Clear()
+    {
+        _messageType = string.Empty;
+        _messages.Clear();
     }
 }

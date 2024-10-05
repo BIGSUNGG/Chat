@@ -35,13 +35,20 @@ public class CookieManager
 
     public List<Cookie> LoadCookies(CookieType type)
     {
-        string filePath = GetFilePath(type);
-        if (File.Exists(filePath) == false)
-            return null;
+        try
+        {
+            string filePath = GetFilePath(type);
+            if (File.Exists(filePath) == false)
+                return null;
 
-        string json = File.ReadAllText(filePath, Encoding.UTF8);
-        List<Cookie> cookies = JsonConvert.DeserializeObject<List<Cookie>>(json);
-        //Console.WriteLine(json);
-        return cookies;
+            string json = File.ReadAllText(filePath, Encoding.UTF8);
+            List<Cookie> cookies = JsonConvert.DeserializeObject<List<Cookie>>(json);
+            //Console.WriteLine(json);
+            return cookies;
+        }
+        catch (System.Exception ex)
+        {
+            return null;
+        }
     }
 }

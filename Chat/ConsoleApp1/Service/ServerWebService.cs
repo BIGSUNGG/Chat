@@ -24,7 +24,7 @@ public abstract class ServerWebService : WebSocketBehavior
     #endregion
 
     #region Cookie
-    public abstract void LoadAllCookie();
+    public abstract void LoadCookie();
     #endregion
 
     #region Event
@@ -32,7 +32,7 @@ public abstract class ServerWebService : WebSocketBehavior
     {
         base.OnOpen();
 
-        LoadAllCookie();
+        LoadCookie();
     }
 
     protected override void OnMessage(MessageEventArgs e)

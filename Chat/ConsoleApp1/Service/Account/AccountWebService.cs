@@ -17,7 +17,7 @@ public class AccountWebService : ServerWebService
     }
 
     #region Cookie
-    public override void LoadAllCookie()
+    public override void LoadCookie()
     {
         if (_account == null)
             _account = new AccountCookieHandler(Context);
@@ -32,8 +32,6 @@ public class AccountWebService : ServerWebService
         base.OnOpen();
 
         Console.WriteLine($"Client connected: {ID}");
-
-        Send("Welcome to the WebSocket server!");
     }
 
     protected override void OnMessage(MessageEventArgs e)
@@ -44,16 +42,6 @@ public class AccountWebService : ServerWebService
 
         MessageReader _accountMessageReader = new MessageReader(e.Data);
 
-        string type = _accountMessageReader.MessageType.ToString();
-        string name = _accountMessageReader.Messages[0].ToString();
-        string id = _accountMessageReader.Messages[1].ToString();
-        string password = _accountMessageReader.Messages[2].ToString();
-
-        Console.WriteLine($"{type}");
-        Console.WriteLine($"{name}");
-        Console.WriteLine($"{id}");
-        Console.WriteLine($"{password}");
-
         if (Enum.TryParse(_accountMessageReader.MessageType, out AccountMessageType messageType))
         {
             switch(messageType)
@@ -61,9 +49,17 @@ public class AccountWebService : ServerWebService
                 case AccountMessageType.Create:
                     using (ChatDbContext db = new ChatDbContext())
                     {
+                        string type = _accountMessageReader.MessageType.ToString();
+                        string name = _accountMessageReader.Messages[0].ToString();
+                        string id = _accountMessageReader.Messages[1].ToString();
+                        string password = _accountMessageReader.Messages[2].ToString();
+
                         AccountDb account =  db.Accounts.Where(a => a.Id == id).FirstOrDefault();
-                        if (account != null) 
+                        if (account != null)
+                        {
+                            Console.WriteLine("Create account failed");
                             return;
+                        }
 
                         account = new AccountDb();
                         account.Name = name;
@@ -74,17 +70,28 @@ public class AccountWebService : ServerWebService
                         _name = name;
                         db.SaveChanges();
                         Console.WriteLine("Create account succeed");
+
+                        Send(e.Data);
                     }
                     break;
                 case AccountMessageType.Login:
                     using (ChatDbContext db = new ChatDbContext())
                     {
+                        string type = _accountMessageReader.MessageType.ToString();
+                        string id = _accountMessageReader.Messages[0].ToString();
+                        string password = _accountMessageReader.Messages[1].ToString();
+
                         AccountDb account = db.Accounts.Where(a => a.Id == id && a.Password == password).FirstOrDefault();
                         if (account == null)
+                        {
+                            Console.WriteLine($"{_name} Account Login failed");
                             return;
+                        }
 
                         _name = account.Name;
                         Console.WriteLine($"{_name} Account Login succeed");
+
+                        Send(e.Data);
                     }
                     break;
                 case AccountMessageType.Logout:
@@ -93,8 +100,6 @@ public class AccountWebService : ServerWebService
                     break;
             }
         }
-
-        Send(e.Data);
     }
 
     protected override void OnError(ErrorEventArgs e)

@@ -19,6 +19,8 @@ public abstract class ClientWebService
     }
 
     #region Action
+    public abstract void Input(string data);
+
     public virtual void Connect()
     {
         LoadCookie();
@@ -45,12 +47,12 @@ public abstract class ClientWebService
     #region Event
     protected virtual void OnOpen()
     {
-        Console.WriteLine($"Connected to the server.");
+        Console.WriteLine($"Connected to the {this.GetType().Name}.");
     }
 
     protected virtual void OnMessage(MessageEventArgs e)
     {
-        Console.WriteLine($"Received from server : {e.Data}");
+        Console.WriteLine($"Received from {this.GetType().Name} : {e.Data}");
     }
 
     protected virtual void OnError(ErrorEventArgs e)
@@ -61,7 +63,19 @@ public abstract class ClientWebService
     protected virtual void OnClose(CloseEventArgs e)
     {
         SaveCookie();
-        Console.WriteLine("Disconnected from the server.");
+        Console.WriteLine($"Disconnected from the {this.GetType().Name}.");
+    }
+    #endregion
+
+    #region Factory
+    static public ClientWebService Create(ServiceType type)
+    {
+        if (type == ServiceType.account)
+            return new AccountWebService();
+        else if (type == ServiceType.chat)
+            return new ChatWebService();
+
+        return null;
     }
     #endregion
 }
