@@ -2,8 +2,15 @@
 using WebSocketSharp;
 using WebSocketSharp.Server;
 
-public class ServerWebService : WebSocketBehavior
+public abstract class ServerWebService : WebSocketBehavior
 {
+    #region Action
+
+    public virtual void Broadcast(string data)
+    {
+        Sessions.Broadcast(data);
+    }
+
     public virtual void BroadcastExcept(string data, string id)
     { 
         foreach(IWebSocketSession session in Sessions.Sessions)
@@ -14,11 +21,18 @@ public class ServerWebService : WebSocketBehavior
             session.Context.WebSocket.Send(data);
         }
     }
+    #endregion
+
+    #region Cookie
+    public abstract void LoadCookie();
+    #endregion
 
     #region Event
     protected override void OnOpen()
     {
         base.OnOpen();
+
+        LoadCookie();
     }
 
     protected override void OnMessage(MessageEventArgs e)
